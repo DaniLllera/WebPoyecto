@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Peliculas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+<body>
+  
+
+    <style>
+        
+        body { margin: 2em; display: grid; grid-template-columns: 20% 80%; grid-gap: 2em; background-color: lightblue;}
+        table, th, td { background-color: lightblue;}
+        .top img {width: 90px; float: left; }
+        .top-left img {width: 90px; float: right; }
+        #img-right {margin-right: 50px;}
+        #form {display: flex; flex-direction: column;}
+        #imgpreview { width: 120px;}
+        #button {margin-left: 320px;}
+    </style>
+  
+  
+<div class="top">
+    <img class="img" src="https://cdn.discordapp.com/attachments/689159962458325172/834102402076508240/CineSenicLogo.png" alt="Italian Trulli">
+
+</div>
+<div class="top-left">
+
+    <img class="img" id="img-right" src="movie.png" alt="Italian Trulli">
+    <a  href="FirebaseJS.html" id="button" class="waves-effect waves-light btn">Movie</a>
+    <a href="OfertasJS.html" class="waves-effect waves-light btn">Promotions</a>
+    <a href="ComidaJS.html"  class="waves-effect waves-light btn">Menus</a>
+
+</div>
+
+
+
+    <table id="peliculas" class="collection">
+
+    </table>
+
+    <div id="form">
+        Name <input id="namebox" type="text"></input><br><br>
+        Gender <input id="genbox" type="text"></input><br><br>
+        Director <input id="dirbox" type="text"></input><br><br>
+        Actor <input id="actbox" type="text"></input><br><br>
+        Synopsis <input id="synbox" type="text"></input><br><br>
+        Year <input id="yearbox" type="text"></input><br><br>
+        Price <input id="pricebox" type="text"></input><br><br>
+        Rating <input id="ratinhobox" type="text"></input><br><br>
+        Trailer <input id="trailbox" type="text"></input><br><br>
+        ImageUrl <input id="imgbox" type="text"></input><br><br>
+        <img id="imgpreview">
+        LogoUrl <input id="logobox" type="text"></input><br><br>
+        <br><br>
+
+        <div class="buttonbar">
+            <a class="waves-effect waves-light btn" id="insert">Insertar</a>
+            <a class="waves-effect waves-light btn" id="update">Update</a>
+            <a class="waves-effect waves-light btn" id="delete">Delete</a>
+        </div>
+    </div>
+
+    <script src="firebase-app.js"></script>
+    <script src="firebase-auth.js"></script>
+    <script src="firebase-firestore.js"></script>
+    <!--<script src="/__/firebase/8.4.1/firebase-analytics.js"></script>
+    <script src="/__/firebase/init.js"></script>-->
+
+<script id="MainScript">
+let $ = document.getElementById.bind( document );
+
+let firebaseConfig = {
+    apiKey: "AIzaSyBvi8Gp26YzT3m3rEWcCksLMcrPCPM1F10",
+    authDomain: "cinesenic-db.firebaseapp.com",
+    databaseURL: "https://cinesenic-db-default-rtdb.firebaseio.com",
+    projectId: "cinesenic-db",
+    storageBucket: "cinesenic-db.appspot.com",
+    messagingSenderId: "444271023686",
+    appId: "1:444271023686:web:de62c44fae8df625b89c47",
+    measurementId: "G-DR2GTKY22M"
+};
+firebase.initializeApp(firebaseConfig);
+let db = firebase.firestore();
+
+let peliculaId = "";
+$('insert').onclick = function(){
+    db.collection("Peliculas").add({
+        Name: $('namebox').value,
+        Gender: $('genbox').value,
+        Director: $('dirbox').value,
+        Actor: $('actbox').value,
+        Synopsis: $('synbox').value,
+        Year:  $('yearbox').value,
+        Price: $('pricebox').value,
+        Rating:  $('ratinhobox').value,
+        Trailer:  $('trailbox').value,
+        Img: $('imgbox').value,
+        Logo:  $('logobox').value
+    });
+
+    listarPeliculas();
+}
+
+$('update').onclick = function (){
+    db.collection("Peliculas").doc(peliculaId).update({
+        Name: $('namebox').value,
+        Rating:  $('ratinhobox').value,
+        Price: $('pricebox').value,
+        Trailer: $('trailbox').value
+   });
+   listarPeliculas();
+}
+
+$('delete').onclick = function (){
+    db.collection("Peliculas").doc(peliculaId).delete().then(() => {
+        console.log("Document successfully deleted!");
+    }).catch((error) => {
+        console.error("Error removing document: ", error);
+    });
+    listarPeliculas();
+}
+
+listarPeliculas();
+
+
+function listarPeliculas() {
+    $('peliculas').innerHTML = "";
+    db.collection("Peliculas").get().then(peliculas => {
+        peliculas.forEach(pelicula => {
+
+            let p = pelicula.data();
+            var tr = document.createElement("tr");
+            tr.classList.add("collection-item");
+            tr.innerHTML = `<td>${p.Name}</td>`;
+            tr.onclick = function(){
+                console.log(pelicula.id);
+                peliculaId = pelicula.id;
+                $('namebox').value = p.Name;
+                $('ratinhobox').value = p.Rating;
+                $('genbox').value = p.Gender;
+                $('imgbox').value = p.Img;
+                $('imgpreview').src = p.Img;
+                $('logobox').value = p.Logo;
+                $('yearbox').value = p.Year;
+                $('actbox').value = p.Actor;
+                $('synbox').value = p.Synopsis;
+                $('pricebox').value = p.Price;
+                $('dirbox').value = p.Director;
+                $('trailbox').value = p.Trailer;
+            }
+
+            $('peliculas').appendChild(tr);
+        });
+    });
+}
+</script>
+</body>
+</html>
